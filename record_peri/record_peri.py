@@ -152,7 +152,7 @@ while run:
 				run = False
 			elif live_broadcast['user_id'] == ['skip']:
 				#skip user loop
-				print ('HTTP request error. Skip user: ', usershort)\
+				print ('HTTP request error. Skip user: ', usershort)
 				run = False
 			else:
 				broadcast_id = live_broadcast['id']
