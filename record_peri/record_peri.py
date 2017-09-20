@@ -54,12 +54,17 @@ p = {}
 p1 = {}
 convertmp4 = 0
 
+username = None
+
 args = sys.argv[1:]
 if len(args):
 	CW = args[0]
 	if CW == '-c':
 		convertmp4 = 1
 		print ("Recordings will be converted to mp4 after ending broadcast.")
+		username = args[1]
+	else:
+		username = args[0]
 
 if os.name == 'nt':
 	FFMPEG = 'ffmpeg.exe'
@@ -149,31 +154,20 @@ def convert2mp4(broadcast_id, input):
 		command = [FFMPEG,'-i' , input,'-y','-loglevel','0', output]
 		p1[broadcast_id]=subprocess.Popen(command)
 	
-while True:
-	#read users.csv into list every loop, so you can edit csv file during run.
+run = True
+while run:
 	print ('*--------------------------------------------------------------*')
-	with open('users.csv', 'r') as readfile:
-		reader = csv.reader(readfile, delimiter=',')
-		usernames2 = list(reader)
-	usernames = usernames2[0]
 	deleteuserbroadcast = []
+	usernames = [username]
 	for user in usernames:
 		usershort = user[:-2]
 		usertype = user[-1:]
-		#Peri or Twitter user
-		if usertype == 't':
-			streamURL = get_twitter_streamURL(usershort)
-			print ((time.strftime("%H:%M:%S")),' Polling Twitter account:', usershort)
-			if streamURL == 'unknown':
-				#user does not exists
-				live_broadcast = {'user_id': ['unknown']}
-			elif streamURL == 'nothing':
-				live_broadcast = {}
-			else:
-				live_broadcast = get_live_broadcast(streamURL, usertype)
-		else:
-			print ((time.strftime("%H:%M:%S")),' Polling Peri account   :', usershort)
-			live_broadcast = get_live_broadcast(usershort, usertype)
+
+		# Here was check Twitter/Peri
+
+		print ((time.strftime("%H:%M:%S")),' Polling Peri account   :', usershort)
+		live_broadcast = get_live_broadcast(usershort, usertype)
+
 		if live_broadcast:
 			if live_broadcast['user_id'] == ['unknown']:
 				# user does not exists anymore
@@ -221,6 +215,7 @@ while True:
 		if p[broadcast_id].poll() == 0:
 			broadcastdict[broadcast_id]['state'] = 'ENDED'
 			deleteuserbroadcast.append(broadcast_id)
+			run = False
 		else:
 			print ('Running ',round(time.time()- broadcastdict[broadcast_id]['time']), 'seconds: ', broadcastdict[broadcast_id]['filename'])
 			#compare file size every 60 seconds
