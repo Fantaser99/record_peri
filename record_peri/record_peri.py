@@ -99,29 +99,6 @@ def get_live_broadcast(user, usertype):
 			live_broadcast = {'user_id': ['skip']}
 	return live_broadcast
 	
-def get_twitter_streamURL(user):
-	req = urllib.request.Request(TWITTER_URL + user)
-	try:
-		response = urllib.request.urlopen(req)
-		r = response.read()
-		soup = BeautifulSoup(r, 'html.parser')
-		stream_container = str(soup.find(id="stream-items-id"))
-		if not stream_container.find('https://www.pscp.tv/w/') == -1:
-			streamURL = (stream_container[stream_container.find('https://www.pscp.tv/w/')+20:])
-			streamURL = (streamURL[:streamURL.find('" ')])
-		else:
-			#no streams or recorded streams
-			streamURL = 'nothing'
-	except urllib.error.URLError as e:
-		print('URLError: ',e.reason)
-		res = e.reason
-		if res == 'Not Found':
-			streamURL = 'unknown'
-		else:
-			#unknown error
-			streamURL = 'nothing'
-	return streamURL
-	
 def get_HLSURL(id):
 	req = urllib.request.Request(TOKEN_URL + str(id))
 	try:
@@ -153,8 +130,8 @@ while run:
 	deleteuserbroadcast = []
 	usernames = [username]
 	for user in usernames:
-		usershort = user[:-2]
-		usertype = user[-1:]
+		usershort = user
+		usertype = "p"
 
 		# Here was check Twitter/Peri
 
@@ -169,15 +146,14 @@ while run:
 					usernames.remove(user)
 					deleteuser.remove(user)
 					print ('Delete user: ', usershort)
-					with open('users.csv', 'w') as outfile:
-						writer = csv.writer(outfile, delimiter=',',quoting=csv.QUOTE_ALL)
-						writer.writerow(usernames)
 				else:
 					deleteuser.append(user)
 					print ('Loop delete user: ', usershort)
+				run = False
 			elif live_broadcast['user_id'] == ['skip']:
 				#skip user loop
-				print ('HTTP request error. Skip user: ', usershort)
+				print ('HTTP request error. Skip user: ', usershort)\
+				run = False
 			else:
 				broadcast_id = live_broadcast['id']
 				if broadcast_id not in broadcastdict :
