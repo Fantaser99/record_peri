@@ -52,19 +52,12 @@ broadcastdict = {}
 deleteuser = []
 p = {}
 p1 = {}
-convertmp4 = 0
 
-username = None
+convertmp4 = 1
+print ("Recordings will be converted to mp4 after ending broadcast.")
+username = sys.argv[1]
+filename = sys.argv[2]
 
-args = sys.argv[1:]
-if len(args):
-	CW = args[0]
-	if CW == '-c':
-		convertmp4 = 1
-		print ("Recordings will be converted to mp4 after ending broadcast.")
-		username = args[1]
-	else:
-		username = args[0]
 
 if os.name == 'nt':
 	FFMPEG = 'ffmpeg.exe'
@@ -193,7 +186,7 @@ while run:
 					broadcastdict[broadcast_id]['user'] = usershort
 					broadcastdict[broadcast_id]['state']= 'RUNNING'
 					broadcastdict[broadcast_id]['time']= time.time()
-					broadcastdict[broadcast_id]['filename']= usershort + '_on_peri_' + str(broadcastdict[broadcast_id]['time'])[:10] + '.mkv'
+					broadcastdict[broadcast_id]['filename']= filename
 					broadcastdict[broadcast_id]['filesize']= 0
 					broadcastdict[broadcast_id]['lasttime']= 0
 					broadcastdict[broadcast_id]['recording']= 0
